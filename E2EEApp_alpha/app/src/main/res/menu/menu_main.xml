@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/image_enc"
+        android:title="Image Encryption"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/fragmentz"
+        android:title="View Fragment Layout"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/logout"
+        android:title="Logout"
+        app:showAsAction="never"    />
+
+    <item
+        android:id="@+id/dark_mode"
+        android:checkable="true"
+        android:checked="false"
+        android:title="Dark mode" />
+
+    <item android:id="@+id/image_upload"
+        android:title="Upload Image to Server"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/find_friends_temp"
+        android:title="Find Friends Activity"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/settings"
+        android:title="Settings"
+        app:showAsAction="never"    />
+
+
+
+<!--    <item-->
+<!--        android:id="@+id/dm"-->
+<!--        android:title="Dark Mode"-->
+<!--        android:tooltipText="DM"-->
+<!--        app:actionLayout="@layout/menu_switch"-->
+<!--        app:showAsAction="always" />-->
+
+
+</menu>
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingActivity">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_profile_image"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:layout_margin="20px"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/profile_image"
+        app:civ_border_color="@color/purple_500"
+        app:civ_border_width="2dp"
+        />
+
+    <EditText
+        android:id="@+id/user_name"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Name"
+        android:inputType="text"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/inputs"
+        android:padding="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:drawableStart="@drawable/ic_baseline_person_24"
+        android:drawableLeft="@drawable/ic_user_foreground"
+        android:layout_below="@+id/user_profile_image"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"></EditText>
+
+    <EditText
+        android:id="@+id/user_status"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Status"
+        android:inputType="text"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/inputs"
+        android:padding="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:drawableStart="@drawable/ic_status"
+        android:drawableLeft="@drawable/ic_user_foreground"
+        android:layout_below="@+id/user_name"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"></EditText>
+
+
+    <Button
+        android:id="@+id/update_user_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_status"
+        android:padding="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="57dp"
+        android:layout_marginRight="57dp"
+        android:text="Update "
+        android:textAllCaps="false"
+        android:textColor="@android:color/background_light"
+        ></Button>
+
+
+
+
+
+</RelativeLayout>

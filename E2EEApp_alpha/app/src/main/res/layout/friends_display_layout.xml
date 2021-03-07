@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/friend_item_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:orientation="horizontal"
+
+        >
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/friend_profile_image"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/profile_image"
+            />
+<!--        <com.mikhaellopez.circularimageview.CircularImageView-->
+<!--            android:layout_width="250dp"-->
+<!--            android:layout_height="250dp"-->
+<!--            android:src="@drawable/profile_image"-->
+<!--            app:civ_border_color="#3f51b5"-->
+<!--            app:civ_border_width="4dp"-->
+<!--            app:civ_shadow="true"-->
+<!--            app:civ_shadow_radius="10"-->
+<!--            app:civ_shadow_color="#3f51b5"/>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/friend_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="User name Ark The GREAT"
+                android:textAlignment="textStart"
+                android:textSize="23dp"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/friend_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phone Number +353 0872219188"
+                android:textAlignment="textStart"
+                android:textSize="13dp"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/friend_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textAlignment="textStart"
+                android:textSize="13dp"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:layout_marginLeft="11dp"
+                android:textColor="@color/black"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_margin="5dp"
+                android:background="#c0c0c0"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>

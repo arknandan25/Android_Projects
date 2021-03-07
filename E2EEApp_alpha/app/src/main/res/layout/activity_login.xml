@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="206dp"
+        tools:layout_editor_absoluteY="277dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/login_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="17dp"
+                android:layout_marginTop="100dp"
+                android:layout_marginRight="17dp"
+                android:text="LOGIN HERE!"
+                android:textColor="@color/purple_500"
+                android:textSize="30sp"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="17dp"></TextView>
+
+            <EditText
+                android:id="@+id/login_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:hint="Email.."
+                android:inputType="textEmailAddress"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/inputs"
+                android:padding="4dp"
+                android:layout_marginLeft="17dp"
+                android:layout_marginRight="17dp"
+                android:drawableStart="@drawable/email"
+                android:drawableLeft="@drawable/email"
+                android:layout_below="@+id/login_text"></EditText>
+
+            <EditText
+                android:id="@+id/login_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:hint="Password.."
+                android:inputType="textPassword"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/inputs"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="17dp"
+                android:layout_marginRight="17dp"
+                android:drawableStart="@drawable/password"
+                android:drawableLeft="@drawable/password"
+                android:layout_below="@+id/login_email"></EditText>
+
+            <Button
+                android:id="@+id/login_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/login_password"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="17dp"
+                android:layout_marginRight="17dp"
+                android:text="Login"
+                android:textAllCaps="false"
+                android:textColor="@android:color/background_light"
+                ></Button>
+
+            <TextView
+                android:id="@+id/need_new_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New User? Create an account!"
+                android:layout_below="@+id/login_button"
+                android:layout_centerHorizontal="true"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_purple"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="30dp">
+
+            </TextView>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "479772340652",
+    "project_id": "e2eeapp-alpha-chat-server",
+    "storage_bucket": "e2eeapp-alpha-chat-server.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479772340652:android:5e777ea3a35285e86c0a09",
+        "android_client_info": {
+          "package_name": "com.example.e2eeapp_alpha"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479772340652-3omt2bvn86uvqtts4pb9584dsf89hhq6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.e2eeapp_alpha",
+            "certificate_hash": "beeb0627f83fc36f7ff4a0f82e8f8584cab1fb8b"
+          }
+        },
+        {
+          "client_id": "479772340652-lfusoib3vqioombl5rohgtmhslgf2iuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2-gSylo0rtKLICnnDAA48EsaRIKxQjxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479772340652-lfusoib3vqioombl5rohgtmhslgf2iuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
