@@ -1,25 +1,32 @@
 package com.example.e2eeapp_alpha;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
+import com.example.e2eeapp_alpha.Certificates.CERTCaller;
+import com.example.e2eeapp_alpha.Encryption.GenerateKeys;
+import com.example.e2eeapp_alpha.Encryption.TextEncryptor;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,12 +35,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import javax.crypto.BadPaddingException;
@@ -41,6 +50,9 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import static com.example.e2eeapp_alpha.Certificates.CERTCaller.CertificateCaller;
+
 //@string/app_name
 public class MainActivity extends AppCompatActivity {
 
@@ -74,6 +86,40 @@ public class MainActivity extends AppCompatActivity {
 
         currentUser = mAuth.getCurrentUser();
 
+        //test calls
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            GenerateKeys.setkeysManually(this); //this call generated keys for 2 users to demonstrate; lets roll from here
+            GenerateKeys.generateMsgPreference(this);
+
+        }
+//        TextEncryptor.getMessageKey(this);
+//        TextEncryptor.ratchetKey(this);
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            try {
+////                TextEncryptor.EncryptAES(this, "txtgggg");
+//                TextEncryptor.ratchetKey(this);
+//            } catch (NoSuchAlgorithmException e) {
+//                e.printStackTrace();
+//            } catch (InvalidKeyException e) {
+//                e.printStackTrace();
+//            } catch (IllegalBlockSizeException e) {
+//                e.printStackTrace();
+//            } catch (BadPaddingException e) {
+//                e.printStackTrace();
+//            } catch (InvalidAlgorithmParameterException e) {
+//                e.printStackTrace();
+//            } catch (NoSuchPaddingException e) {
+//                e.printStackTrace();
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+//        TextEncryptor.testFunction(this);
+
+        //test calls end here -----
 
         //conenct variables to elements in the layout
         editText = findViewById(R.id.plaintext_to_send);
@@ -106,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     for (int i=0; i<stringArray.length;++i){
                         String[] stringKeyValue = stringArray[i].split("=", 2);
-                        stringFinal[2*i] = (String) android.text.format.DateFormat.format("dd--MM-yyyy hh:mm:ss", Long.parseLong(stringKeyValue[0]));
+                        stringFinal[2*i] = (String) DateFormat.format("dd--MM-yyyy hh:mm:ss", Long.parseLong(stringKeyValue[0]));
                         stringFinal[2*i+1] = decrypt_message(stringKeyValue[1]);
 //                        stringFinal[2*i+1] =stringKeyValue[1];
 
@@ -281,6 +327,49 @@ public class MainActivity extends AppCompatActivity {
                 Intent myIntent4 = new Intent(MainActivity.this, SettingActivity.class);
                 MainActivity.this.startActivity(myIntent4);
                 break;
+            case R.id.csr:
+                //initiate the code which generates the CSR and creates a file for User
+                String k = CertificateCaller(this);
+                //
+                try {
+                    File yourAppDir = new File(getExternalFilesDir(null).getAbsolutePath()+"_CSR");
+
+                    if(!yourAppDir.exists() && !yourAppDir.isDirectory())
+                    {
+                        // create empty directory
+                        if (yourAppDir.mkdirs())
+                        {
+                            Log.i("CreateDir","App dir created");
+                        }
+                        else
+                        {
+                            Log.w("CreateDir","Unable to create app dir!");
+                        }
+                    }
+                    else
+                    {
+                        Log.i("CreateDir","App dir already exists");
+                    }
+                    File csr = new File(yourAppDir, "CSR_Ark.txt");
+                    FileOutputStream stream = new FileOutputStream(csr);
+                    try {
+                        stream.write(k.getBytes());
+                    } finally {
+                        stream.close();
+                    }
+
+                    Log.i("csr file","created");
+                    Toast.makeText(this, "CSR Generated", Toast.LENGTH_LONG ).show();
+
+                }
+                catch (IOException e) {
+                    Log.e("Exception", "File write failed: " + e.toString());
+                }
+
+                break;
+            case R.id.create_group:
+                RequestNewGroup();
+                break;
             case R.id.dark_mode:
 //                MenuItem checkable = menu.findItem(R.id.dark_mode);
                 isChecked_curr = !item.isChecked();
@@ -305,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
 //                    item.setChecked(isChecked);
 //                    item.setChecked(!isChecked);
                     Toast.makeText(this, "dark mode Disabled", Toast.LENGTH_SHORT).show();
-                    Log.i("Checkced status:", String.valueOf(isChecked_curr));
+                    Log.i("Checked status:", String.valueOf(isChecked_curr));
                 }
 
                 isChecked_past = isChecked_curr;
@@ -316,8 +405,43 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void RequestNewGroup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        builder.setTitle("Enter Group name:");
+        final EditText groupName = new EditText(MainActivity.this);
+        builder.setView(groupName);
 
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String gname = groupName.getText().toString();
+                if (TextUtils.isEmpty(gname)){
+                    Toast.makeText(MainActivity.this, "Specify a group name!", Toast.LENGTH_SHORT).show();
 
+                }else {
+                    DatabaseReference RootRef = FirebaseDatabase.getInstance().getReference();
+                    RootRef.child("GroupMessages").child(gname).setValue("")
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                Toast.makeText(MainActivity.this, gname + " is created successfully!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
 
     @Override
     protected void onStart() {

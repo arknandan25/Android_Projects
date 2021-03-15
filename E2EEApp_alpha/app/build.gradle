@@ -12,6 +12,8 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -73,6 +75,20 @@ dependencies {
 
     //ecdh curve25519 library
     implementation files('libs/ecdh-curve25519.jar')
+    //hkdf
+    implementation group: 'at.favre.lib', name: 'hkdf', version: '1.1.0'
+
+    //spongycastle for certificate generation
+    implementation 'com.madgag.spongycastle:core:1.54.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
+    implementation 'com.madgag.spongycastle:pg:1.54.0.0'
+
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.54'
+
+    def multidex_version = "2.0.1"
+    implementation "androidx.multidex:multidex:$multidex_version"
+
 
 
 }

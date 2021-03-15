@@ -1,6 +1,7 @@
 package com.example.e2eeapp_alpha;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.e2eeapp_alpha.Chats.ChatObject;
 import com.example.e2eeapp_alpha.Chats.MessageAdapter;
 import com.example.e2eeapp_alpha.Chats.MessageObject;
+import com.example.e2eeapp_alpha.Encryption.EncryptionObject;
+import com.example.e2eeapp_alpha.Encryption.TextEncryptor;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,10 +36,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -224,6 +236,7 @@ public class ChatActivity  extends AppCompatActivity {
                         MessageObject messageObject = snapshot.getValue(MessageObject.class);
                         messageList.add(messageObject);
                         mChatAdapter.notifyDataSetChanged();
+
                     }
 
                     @Override
@@ -302,11 +315,41 @@ public class ChatActivity  extends AppCompatActivity {
 
             Date date = new Date();
 
+            //map used to input data to the server
             Map newMessageMap = new HashMap();
-            newMessageMap.put("message", msg_write.getText().toString());
+//            newMessageMap.put("message", msg_write.getText().toString());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                try {
+                    EncryptionObject x = TextEncryptor.EncryptAES(this, msg_write.getText().toString());
+                    newMessageMap.put("message", x.getCiphertext());
+                    newMessageMap.put("ucid", x.getEkey());
+                    Log.i("ciphertext;sendMessage:", x.getCiphertext());
+                    Log.i("msgKey;sendMessage:", "" + x.getEkey());
+
+//                    newMessageMap.put("message", TextEncryptor.EncryptAES(this, msg_write.getText().toString()));
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
             newMessageMap.put("type", "text");
 
             newMessageMap.put("from", senderId);
+
+            newMessageMap.put("timestamp", String.valueOf(date.getTime()));
+
 
             Map newMessageMapDetails = new HashMap();
             newMessageMapDetails.put(msgSenderRef + "/" + messagePushID, newMessageMap);
@@ -314,12 +357,14 @@ public class ChatActivity  extends AppCompatActivity {
             newMessageMapDetails.put(msgReceiverRef + "/" + messagePushID, newMessageMap);
 
 
-            //UPLOAD ADTA
+            //UPLOAD DATA CHECK
             RootRef.updateChildren(newMessageMapDetails).addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()){
                         Toast.makeText(ChatActivity.this, "Message Sent!", Toast.LENGTH_SHORT).show();
+                        //if the message upload is successful
+
 
                     }else{
                         Toast.makeText(ChatActivity.this, "Error occured!Try again", Toast.LENGTH_SHORT).show();
@@ -338,6 +383,65 @@ public class ChatActivity  extends AppCompatActivity {
 
 
 
+
+    //encryption test- send button
+
+
+//    private void sendMesage() {
+//        //send the message typed by the user
+//        Log.i("senderID;sendMessage:", senderId);
+//        Log.i("receiverID;sendMessage:", receiverId);
+//        Log.i("sessionId;sendMessage:", "" + sessionId);
+//
+//        if (!msg_write.getText().toString().isEmpty()) {
+//            //user has typed something
+//            String msgSenderRef = "UserChatsTemp/" + senderId + "/" + receiverId;
+//            String msgReceiverRef = "UserChatsTemp/" + receiverId + "/" + senderId;
+//
+//            //random key for each message
+//
+//
+////            newMessageMap.put("message", msg_write.getText().toString());
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                try {
+//
+//                    Log.i("sendMesageENC: ", TextEncryptor.EncryptAES(this, msg_write.getText().toString()));
+//                    byte[] x = new byte[0];
+//                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                        x = Base64.getDecoder().decode(TextEncryptor.EncryptAES(this, msg_write.getText().toString()));
+//                    }
+//                    Log.i("sendMesageDEC: ", TextEncryptor.DecryptAES( x, this));
+//                } catch (NoSuchAlgorithmException e) {
+//                    e.printStackTrace();
+//                } catch (InvalidKeyException e) {
+//                    e.printStackTrace();
+//                } catch (IllegalBlockSizeException e) {
+//                    e.printStackTrace();
+//                } catch (BadPaddingException e) {
+//                    e.printStackTrace();
+//                } catch (InvalidAlgorithmParameterException e) {
+//                    e.printStackTrace();
+//                } catch (NoSuchPaddingException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        }else{
+//            Toast.makeText(ChatActivity.this, "Type something!", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//
+//
+
+
+
+
+    //end of send button
+
+
+
     private void initializeRecyclerview() {
         messageList= new ArrayList<MessageObject>();
         mChatRV = (RecyclerView)findViewById(R.id.chatRV);
@@ -345,7 +449,7 @@ public class ChatActivity  extends AppCompatActivity {
         mChatRV.setHasFixedSize(false);
         mChatLayoutManager = new LinearLayoutManager(this);
         mChatRV.setLayoutManager(mChatLayoutManager);
-        mChatAdapter = new MessageAdapter(messageList);
+        mChatAdapter = new MessageAdapter(this, messageList);
         mChatRV.setAdapter(mChatAdapter);
 
     }

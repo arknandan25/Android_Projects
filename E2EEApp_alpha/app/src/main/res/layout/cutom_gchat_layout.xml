@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/receiver_messages_layout"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:id="@+id/receiver_side"
+        tools:ignore="InvalidId"
+        android:padding="6dp"
+        >
+
+
+    <TextView
+        android:id="@+id/receiver_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="Name"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_gravity="start"
+        />
+    <TextView
+        android:id="@+id/receiver_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="Receiver Messages here"
+        android:textSize="12sp"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:id="@+id/receiver_message_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="time"
+        android:textSize="10sp"
+        android:textColor="@color/darkgrey"
+        android:layout_gravity="right"
+        />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sender_messages_layout"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/sender_side"
+        android:layout_marginTop="5dp"
+        android:padding="6dp"
+        >
+
+
+        <TextView
+            android:id="@+id/sender_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="Name"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_gravity="start"
+            />
+        <TextView
+            android:id="@+id/sender_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="Sender Messages here"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/sender_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="time"
+            android:textSize="10sp"
+            android:textColor="@color/darkgrey"
+            android:layout_gravity="right"
+            />
+    </LinearLayout>
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/sender_message_text"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentTop="@id/receiver_message_text"-->
+<!--        android:padding="10dp"-->
+<!--        android:textSize="14sp"-->
+<!--        android:text="Sender Messages here"-->
+<!--        android:background="@drawable/sender_messages_layout"-->
+<!--        android:textColor="@color/black"-->
+
+<!--        />-->
+
+
+</RelativeLayout>

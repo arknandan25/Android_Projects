@@ -9,9 +9,7 @@
         android:title="View Fragment Layout"
         app:showAsAction="never"    />
 
-    <item android:id="@+id/logout"
-        android:title="Logout"
-        app:showAsAction="never"    />
+
 
     <item
         android:id="@+id/dark_mode"
@@ -27,8 +25,20 @@
         android:title="Find Friends Activity"
         app:showAsAction="never"    />
 
+    <item android:id="@+id/create_group"
+        android:title="Create Group"
+        app:showAsAction="never"    />
+
     <item android:id="@+id/settings"
         android:title="Settings"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/csr"
+        android:title="Generate CSR"
+        app:showAsAction="never"    />
+
+    <item android:id="@+id/logout"
+        android:title="Logout"
         app:showAsAction="never"    />
 
 

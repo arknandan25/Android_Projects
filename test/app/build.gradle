@@ -37,6 +37,21 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    implementation 'com.madgag.spongycastle:core:1.54.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
+    implementation 'com.madgag.spongycastle:pg:1.54.0.0'
+
+//    implementation 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
+
+//    implementation 'com.madgag.spongycastle:core:1.51.0.0'
+//    implementation 'com.madgag.spongycastle:pkix:1.51.0.0'
+
+    compile 'org.bouncycastle:bcprov-jdk15on:1.54'
+
+
+
+
     implementation files('libs/ecdh-curve25519.jar')
 
 }

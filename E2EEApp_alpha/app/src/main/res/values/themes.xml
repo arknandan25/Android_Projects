@@ -20,6 +20,8 @@
 
     </style>
 
+    <style name="AlertDialog" ></style>
+
 
 
     <style name="Theme.E2EEApp_alpha.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

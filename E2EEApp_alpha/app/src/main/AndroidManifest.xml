@@ -16,11 +16,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.E2EEApp_alpha">
-        <activity android:name=".ChatActivity"
-            android:windowSoftInputMode="adjustPan"
+        <activity android:name=".GroupChat.GroupChatActivity"
+            android:parentActivityName=".Fragments" >
+
+        </activity>
+        <activity android:name=".Certificates.CERTCaller" />
+        <activity android:name=".Encryption.GenerateKeys" />
+        <activity
+            android:name=".ChatActivity"
             android:parentActivityName=".Fragments"
             android:theme="@style/Theme.E2EEApp_alpha.NoActionBar"
-            ></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".SettingActivity" />
         <activity
             android:name=".ViewServerImages"
