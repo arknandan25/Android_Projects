@@ -1,10 +1,5 @@
 package com.example.e2eeapp_alpha;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,9 +17,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.e2eeapp_alpha.Certificates.CERTCaller;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.example.e2eeapp_alpha.Encryption.GenerateKeys;
-import com.example.e2eeapp_alpha.Encryption.TextEncryptor;
+import com.example.e2eeapp_alpha.GroupChatEncryption.GroupKeys;
+import com.example.e2eeapp_alpha.Users.DynamicUsers;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,7 +40,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -88,11 +88,15 @@ public class MainActivity extends AppCompatActivity {
 
         //test calls
 
+        DynamicUsers.CreateUserProfiles(this);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             GenerateKeys.setkeysManually(this); //this call generated keys for 2 users to demonstrate; lets roll from here
             GenerateKeys.generateMsgPreference(this);
 
         }
+
+
 //        TextEncryptor.getMessageKey(this);
 //        TextEncryptor.ratchetKey(this);
 
@@ -422,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
                     DatabaseReference RootRef = FirebaseDatabase.getInstance().getReference();
                     RootRef.child("GroupMessages").child(gname).setValue("")
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
@@ -429,6 +434,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        GroupKeys.adminSet(getApplicationContext(), gname);
+                    }
+
                 }
             }
         });

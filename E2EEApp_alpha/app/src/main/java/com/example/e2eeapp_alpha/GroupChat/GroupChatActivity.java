@@ -2,11 +2,21 @@ package com.example.e2eeapp_alpha.GroupChat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,22 +29,40 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.e2eeapp_alpha.ChatActivity;
 import com.example.e2eeapp_alpha.Chats.MessageAdapter;
 import com.example.e2eeapp_alpha.Chats.MessageObject;
+import com.example.e2eeapp_alpha.Encryption.EncryptionObject;
+import com.example.e2eeapp_alpha.Fragments;
+import com.example.e2eeapp_alpha.GroupChatEncryption.GCTextEncryptor;
+import com.example.e2eeapp_alpha.GroupChatEncryption.GroupKeys;
 import com.example.e2eeapp_alpha.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import static com.example.e2eeapp_alpha.GroupChatEncryption.GCTextEncryptor.generateSharedSecretAndRetriveGK;
 
 public class GroupChatActivity extends AppCompatActivity {
 
@@ -48,11 +76,14 @@ public class GroupChatActivity extends AppCompatActivity {
     private ArrayList<GroupObject> grpMessageList;
 
     private TextView displayGroupMessages;
-    private String currentGroupName, currentUserId, currentUserName, currentDate, currentTime;
+    private String currentGroupName, currentUserId, currentUserName, currentDate, currentTime, status;
+    private Context context;
+    private ProgressDialog loadingBar;
 
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference, groupReference, groupMessageRef;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +95,10 @@ public class GroupChatActivity extends AppCompatActivity {
         //get groupName from Intent
         currentGroupName = (String) getIntent().getExtras().get("groupName");
 
+        //shared secret and retrieving group key
+
+        generateSharedSecretAndRetriveGK(this, currentGroupName);
+
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
         databaseReference = FirebaseDatabase.getInstance().getReference()
@@ -72,24 +107,60 @@ public class GroupChatActivity extends AppCompatActivity {
                 .child("GroupMessages")
                 .child(currentGroupName);
 
+
         Initialiaze();
         GetUserInfo();
+
 
         SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SaveMessageToServer();
+                try {
+                    SaveMessageToServer();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                }
                 MessageInput.setText("");
+
             }
         });
     }
 
-    private void SaveMessageToServer() {
+    private void SaveMessageToServer() throws BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, NoSuchPaddingException, InvalidKeyException {
+        /*Group Member's message sent to the server here
+        * 1.Get the message and encrypt it, receive back the cipher object
+        * 2.
+        * 3.
+        * 4.
+        * */
+
         String message = MessageInput.getText().toString();
         String messageKey = groupReference.push().getKey();
+        String ciphertext_tosend, ucid;
         if (TextUtils.isEmpty(message)){
             Toast.makeText(this, "Write a message!", Toast.LENGTH_LONG).show();
         }else{
+
+            //Call EncryptAES to convert this plaintext message to cipher text
+            EncryptionObject encryptionObject = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                 encryptionObject = GCTextEncryptor.EncryptAES(this, message);
+            }
+            ciphertext_tosend = encryptionObject.getCiphertext();
+            ucid = encryptionObject.getEkey();
+
             //current date
             Calendar calendar_date = Calendar.getInstance();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");
@@ -118,11 +189,12 @@ public class GroupChatActivity extends AppCompatActivity {
             GroupObject groupObject = new GroupObject(
                     currentDate,
                     currentGroupName,
-                    message,
+                    ciphertext_tosend,
                     messageKey,
                     currentUserName,
                     currentUserId,
-                    currentTime
+                    currentTime,
+                    ucid
             );
 
 //            groupMessageRef.updateChildren(messageMap);
@@ -154,6 +226,19 @@ public class GroupChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        context = this;
+
+        //
+        SharedPreferences users_profile
+                =   context.getSharedPreferences("dynamicUser", Context.MODE_PRIVATE);
+        if (users_profile.getString("status", null) != null && users_profile.getString("status", null).equals("admin")){
+            status = "Admin";
+        }else {
+            status = "Group Member";
+
+        }
+
+        //
         groupReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -190,6 +275,54 @@ public class GroupChatActivity extends AppCompatActivity {
 
             }
         });
+
+        //
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("GroupKeys").child(currentGroupName).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.i("DELETE-OCA", snapshot.getKey() + " is deleted! ");
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.i("DELETE-OCC", snapshot.getKey() + " is deleted! ");
+
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Log.i("DELETE-OCR", snapshot.getKey() + " is deleted! ");
+                //check if the current user is admin
+                SharedPreferences users_profile
+                        =   context.getSharedPreferences("dynamicUser", Context.MODE_PRIVATE);
+
+                if (users_profile.getString("status", null) != null && users_profile.getString("status", null).equals("admin")){
+                    //"status" key exist in the Shared Preference
+                    Log.i("LEAVE",  users_profile.getString("status", null));
+                    //this user is admin; then call the function that will generate new group ley and set that in Group Keys
+                    GroupKeys.UpdateGroupKey(context, currentGroupName);
+                }
+
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.i("DELETE-OCM", snapshot.getKey() + " is deleted! ");
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i("DELETE-OC", error.getMessage().toString());
+
+            }
+        });
+
+
     }
 
     private void DisplayGroupMessages(DataSnapshot snapshot) {
@@ -204,7 +337,28 @@ public class GroupChatActivity extends AppCompatActivity {
     private void Initialiaze() {
 //        toolbar = findViewById(R.id.gchat_toolbar);
 //        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(currentGroupName);
+
+
+
+        //get curretn user name
+        Task<DataSnapshot> q = FirebaseDatabase.getInstance().getReference()
+                .child("User_Data_Temp")
+                .child(currentUserId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                        Log.i("INITIALZE",  task.getResult().child("name").getValue().toString());
+                        Log.i("INITIALZE", String.valueOf(task.getResult()));
+                        getSupportActionBar().setTitle(currentGroupName + " - " + task.getResult().child("name").getValue().toString() + "(" + status + ")");
+
+
+                    }
+                });
+
+        loadingBar = new ProgressDialog(this);
+
 
         SendMessageButton = (ImageButton) findViewById(R.id.gchat_send_message);
         MessageInput = (EditText) findViewById(R.id.gchat_plaintext_to_send);
@@ -224,12 +378,52 @@ public class GroupChatActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.group_chat_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.leave_group:
+//                Toast.makeText(this, "Clicked lEAVE gROUP", Toast.LENGTH_SHORT).show();
+                leavegroup();
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void leavegroup() {
+        //progress bar
+        loadingBar.setTitle("Remove Group");
+        loadingBar.setMessage("Please wait while we remove you...");
+        loadingBar.setCanceledOnTouchOutside(true);
+        loadingBar.show();
+        ///
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("GroupKeys").child(currentGroupName).child("fBkbRYitTleG9N1YkMWpAPCfY782").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    for (int i =0; i<30; ++i){
+                        Toast.makeText(GroupChatActivity.this, "You have left the group.Your keys have expired!", Toast.LENGTH_SHORT).show();
+
+
+                    }
+                    loadingBar.dismiss();
+                    //Intent
+                    Intent intent = new Intent(context, Fragments.class);
+                    startActivity(intent);
+
+                }
+            }
+        });
+
+    }
 }
 
-//<include
-//        android:id="@+id/gchat_toolbar"
-//                layout="@layout/custom_group_chat_bar"
-//                android:layout_width="match_parent"
-//                android:layout_height="wrap_content">
-//
-//</include>

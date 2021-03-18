@@ -1,11 +1,11 @@
 package com.example.e2eeapp_alpha.GroupChat;
 
 public class GroupObject {
-    private String date, groupName, message , messageKey, senderName, senderUid, time;
+    private String date, groupName, message , messageKey, senderName, senderUid, time, ucid;
 
     public GroupObject(){}
 
-    public GroupObject(String date, String groupName, String message, String messageKey, String senderName, String senderUid, String time) {
+    public GroupObject(String date, String groupName, String message, String messageKey, String senderName, String senderUid, String time, String ucid) {
         this.date = date;
         this.groupName = groupName;
         this.message = message;
@@ -13,6 +13,7 @@ public class GroupObject {
         this.senderName = senderName;
         this.senderUid = senderUid;
         this.time = time;
+        this.ucid = ucid;
     }
 
     public String getDate() {
@@ -69,5 +70,13 @@ public class GroupObject {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getUcid() {
+        return ucid;
+    }
+
+    public void setUcid(String ucid) {
+        this.ucid = ucid;
     }
 }
