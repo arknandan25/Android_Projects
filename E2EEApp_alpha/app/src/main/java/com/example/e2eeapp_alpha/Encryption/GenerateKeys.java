@@ -42,41 +42,166 @@ public class GenerateKeys extends AppCompatActivity {
 
 
 
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    public static void makeKey(Context context){
+//        //generating test keys
+//        SecureRandom random = new SecureRandom();
+//        SecureRandom random1 = new SecureRandom();
+//
+//        // Create Alice's secret key from a big random number.
+//        byte[] alice_secret_key = ECDHCurve25519.generate_secret_key(random);
+//        // Create Alice's public key.
+//        byte[] alice_public_key = ECDHCurve25519.generate_public_key(alice_secret_key);
+//
+//        // Bob is also calculating a key pair.
+//        byte[] bob_secret_key = ECDHCurve25519.generate_secret_key(random1);
+//        byte[] bob_public_key = ECDHCurve25519.generate_public_key(bob_secret_key);
+//
+//        byte[] shared_secret = ECDHCurve25519.generate_shared_secret(alice_secret_key, bob_public_key);
+//
+//
+//        "T1xEE867TMSw0P1x1gUbEvYnRIq7MMhZg0W0LDh0fC0=",
+//                "mIj3jgAAAAABAAAACFemqQAAAAABAAAAAQAAAByTy2Q=",
+//                "jJw/MY/KRK2RAQ6jpK2XfHv55U6fimBGb48PuiHd4Cg=",
+//                "iCRfqAAYqv8BAAAAAAAAAAAAAAABAAAAAQAAAIAYqn8=",
+//
+//        String alice_public_key_str = null;
+//        String alice_private_key_str = null;
+//        String bob_public_key_str = null;
+//        String bob_private_key_str = null;
+//        String shared_secret_str = null;
+//
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            alice_public_key_str = Base64.getEncoder().encodeToString(alice_public_key);
+//            alice_private_key_str = Base64.getEncoder().encodeToString(alice_secret_key);
+//
+//            bob_public_key_str = Base64.getEncoder().encodeToString(bob_public_key);
+//            bob_private_key_str = Base64.getEncoder().encodeToString(bob_secret_key);
+//
+//            shared_secret_str  = Base64.getEncoder().encodeToString(shared_secret);
+//
+//
+//            Log.i("Alice Public str:", alice_public_key_str);
+//            Log.i("Alice Private str:", alice_private_key_str);
+//
+//            Log.i("Bob Public str:", bob_public_key_str);
+//            Log.i("Bob Private str:", bob_private_key_str);
+//            Log.i("Shared Secret str:", shared_secret_str);
+//
+//
+//            // base64 string to byte[]
+//            byte[] alice_public_key_rebyte = Base64.getDecoder().decode(alice_public_key_str);
+//            byte[] alice_private_key_rebyte = Base64.getDecoder().decode(alice_private_key_str);
+//
+//            byte[] bob_public_key_rebyte = Base64.getDecoder().decode(bob_public_key_str);
+//            byte[] bob_private_key_rebyte = Base64.getDecoder().decode(bob_private_key_str);
+//
+//            byte[] shared_secret_rebyte = Base64.getDecoder().decode(shared_secret_str);
+//
+//            if (    Arrays.equals(alice_public_key_rebyte, alice_public_key) &&
+//                    Arrays.equals(alice_private_key_rebyte, alice_secret_key) &&
+//                    Arrays.equals(bob_public_key_rebyte, bob_public_key) &&
+//                    Arrays.equals(bob_private_key_rebyte, bob_secret_key) &&
+//                    Arrays.equals(shared_secret_rebyte, shared_secret))
+//            {
+//                Log.i("GenerateKeyPair:", "All byte string conversion succ");
+//
+//            }else {
+//                Log.i("GenerateKeyPair:", "The byte string conversion failed");
+//            }
+//        }
+//
+//        //defining the chain key and message
+//        byte[] chainKey_alice = null;
+//        byte[] chainKey_bob = null;
+//        byte[] messageKey_alice = null;
+//        byte[] messageKey_bob = null;
+//
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+//
+//            //chain Key
+//            chainKey_alice = HKDF.fromHmacSha256().expand(shared_secret, "chainKey".getBytes(StandardCharsets.UTF_8), 16);
+//
+//            chainKey_bob = HKDF.fromHmacSha256().expand(shared_secret, "chainKey".getBytes(StandardCharsets.UTF_8), 16);
+//
+//            Log.i("Chain Keys:",Base64.getEncoder().encodeToString(chainKey_alice) + "::bob-" + Base64.getEncoder().encodeToString(chainKey_bob));
+//            Log.i("Chain Keys:",Base64.getDecoder().decode(Base64.getEncoder().encodeToString(chainKey_alice))
+//                    + "::bob-" + Base64.getDecoder().decode(Base64.getEncoder().encodeToString(chainKey_bob)));
+//            if ( Arrays.equals(chainKey_alice, chainKey_bob) )
+//            {
+//                Log.i("Chain Keys:", "Same chain keys established");
+//
+//            }else {
+//                Log.i("Chain Keys:", "Chain Keys for users not same");
+//            }
+//
+//            //message Key
+//            messageKey_alice = HKDF.fromHmacSha256().expand(chainKey_alice, "messageKey".getBytes(StandardCharsets.UTF_8), 16);
+//            messageKey_bob = HKDF.fromHmacSha256().expand(chainKey_bob, "messageKey".getBytes(StandardCharsets.UTF_8), 16);
+//
+//
+//
+//            Log.i("Message Keys:",Base64.getEncoder().encodeToString(messageKey_alice) + "::bob-" + Base64.getEncoder().encodeToString(messageKey_bob));
+//            Log.i("Message Keys:",Base64.getDecoder().decode(Base64.getEncoder().encodeToString(messageKey_alice))
+//                    + "::bob-" + Base64.getDecoder().decode(Base64.getEncoder().encodeToString(messageKey_bob)));
+//            if ( Arrays.equals(messageKey_alice, messageKey_bob) )
+//            {
+//                Log.i("Message Keys:", "Same Message keys established");
+//
+//            }else {
+//                Log.i("Message Keys:", "Message Keys for users not same");
+//            }
+//
+//        }
+//        String chainKey_alice_str = Base64.getEncoder().encodeToString(chainKey_alice)  ;
+//        String chainKey_bob_str = Base64.getEncoder().encodeToString(chainKey_bob);
+//        String messageKey_alice_str = Base64.getEncoder().encodeToString(messageKey_alice) ;
+//        String messageKey_bob_str = Base64.getEncoder().encodeToString(messageKey_bob);
+//
+//
+//        SaveKeysSP(context, alice_public_key_str, alice_private_key_str, bob_public_key_str,
+//        bob_private_key_str, shared_secret_str, chainKey_alice_str, chainKey_bob_str, messageKey_alice_str, messageKey_bob_str);
+//
+//    }
+
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static void makeKey(Context context){
-        //generating test keys
-        SecureRandom random = new SecureRandom();
-        SecureRandom random1 = new SecureRandom();
-
-        // Create Alice's secret key from a big random number.
-        byte[] alice_secret_key = ECDHCurve25519.generate_secret_key(random);
-        // Create Alice's public key.
-        byte[] alice_public_key = ECDHCurve25519.generate_public_key(alice_secret_key);
-
-        // Bob is also calculating a key pair.
-        byte[] bob_secret_key = ECDHCurve25519.generate_secret_key(random1);
-        byte[] bob_public_key = ECDHCurve25519.generate_public_key(bob_secret_key);
-
-        byte[] shared_secret = ECDHCurve25519.generate_shared_secret(alice_secret_key, bob_public_key);
+    public static void setKey(Context context){
+        /*SetKeys will set the keys for One on One Chats between Alice and Bob
+        * 1.These Pub/Private Keys are generated in the app itself and then set to generate Shared Secret
+        * 2.Creating a 32 byte Chain Key from the Shared Secret
+        * */
 
 
-
-        String alice_public_key_str = null;
-        String alice_private_key_str = null;
-        String bob_public_key_str = null;
-        String bob_private_key_str = null;
+        String alice_public_key_str = "T1xEE867TMSw0P1x1gUbEvYnRIq7MMhZg0W0LDh0fC0=";
+        String alice_private_key_str = "mIj3jgAAAAABAAAACFemqQAAAAABAAAAAQAAAByTy2Q=";
+        String bob_public_key_str =  "jJw/MY/KRK2RAQ6jpK2XfHv55U6fimBGb48PuiHd4Cg=";
+        String bob_private_key_str = "iCRfqAAYqv8BAAAAAAAAAAAAAAABAAAAAQAAAIAYqn8=";
         String shared_secret_str = null;
 
+        byte[] alice_public_key_byte = Base64.getDecoder().decode(alice_public_key_str);
+        byte[] alice_private_key_byte = Base64.getDecoder().decode(alice_private_key_str);
+
+        byte[] bob_public_key_byte = Base64.getDecoder().decode(bob_public_key_str);
+        byte[] bob_private_key_byte = Base64.getDecoder().decode(bob_private_key_str);
+
+        byte[] SharedSecretAB = generateShredSecretECDH(alice_private_key_byte, bob_public_key_byte);
+        byte[] SharedSecretBA = generateShredSecretECDH(bob_private_key_byte, alice_public_key_byte);
+
+
+        if(Arrays.equals(SharedSecretAB, SharedSecretBA)){
+            Log.w("SS", "Shared Secret ab is equal ba");
+        }else{
+            Log.w("SS", "Shared Secret ab is not equal ba");
+
+        }
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            alice_public_key_str = Base64.getEncoder().encodeToString(alice_public_key);
-            alice_private_key_str = Base64.getEncoder().encodeToString(alice_secret_key);
+            //shared secret Base-64 String
+            shared_secret_str  = Base64.getEncoder().encodeToString(SharedSecretAB);
 
-            bob_public_key_str = Base64.getEncoder().encodeToString(bob_public_key);
-            bob_private_key_str = Base64.getEncoder().encodeToString(bob_secret_key);
-
-            shared_secret_str  = Base64.getEncoder().encodeToString(shared_secret);
-
-
+            //Logall Base-64 Strings
             Log.i("Alice Public str:", alice_public_key_str);
             Log.i("Alice Private str:", alice_private_key_str);
 
@@ -84,86 +209,126 @@ public class GenerateKeys extends AppCompatActivity {
             Log.i("Bob Private str:", bob_private_key_str);
             Log.i("Shared Secret str:", shared_secret_str);
 
-
-            // base64 string to byte[]
-            byte[] alice_public_key_rebyte = Base64.getDecoder().decode(alice_public_key_str);
-            byte[] alice_private_key_rebyte = Base64.getDecoder().decode(alice_private_key_str);
-
-            byte[] bob_public_key_rebyte = Base64.getDecoder().decode(bob_public_key_str);
-            byte[] bob_private_key_rebyte = Base64.getDecoder().decode(bob_private_key_str);
-
-            byte[] shared_secret_rebyte = Base64.getDecoder().decode(shared_secret_str);
-
-            if (    Arrays.equals(alice_public_key_rebyte, alice_public_key) &&
-                    Arrays.equals(alice_private_key_rebyte, alice_secret_key) &&
-                    Arrays.equals(bob_public_key_rebyte, bob_public_key) &&
-                    Arrays.equals(bob_private_key_rebyte, bob_secret_key) &&
-                    Arrays.equals(shared_secret_rebyte, shared_secret))
-            {
-                Log.i("GenerateKeyPair:", "All byte string conversion succ");
-
-            }else {
-                Log.i("GenerateKeyPair:", "The byte string conversion failed");
-            }
         }
 
         //defining the chain key and message
-        byte[] chainKey_alice = null;
-        byte[] chainKey_bob = null;
-        byte[] messageKey_alice = null;
-        byte[] messageKey_bob = null;
+        byte[] ChainKey = null;
+        byte[] Messagekey = null;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-
             //chain Key
-            chainKey_alice = HKDF.fromHmacSha256().expand(shared_secret, "chainKey".getBytes(StandardCharsets.UTF_8), 16);
-
-            chainKey_bob = HKDF.fromHmacSha256().expand(shared_secret, "chainKey".getBytes(StandardCharsets.UTF_8), 16);
-
-            Log.i("Chain Keys:",Base64.getEncoder().encodeToString(chainKey_alice) + "::bob-" + Base64.getEncoder().encodeToString(chainKey_bob));
-            Log.i("Chain Keys:",Base64.getDecoder().decode(Base64.getEncoder().encodeToString(chainKey_alice))
-                    + "::bob-" + Base64.getDecoder().decode(Base64.getEncoder().encodeToString(chainKey_bob)));
-            if ( Arrays.equals(chainKey_alice, chainKey_bob) )
-            {
-                Log.i("Chain Keys:", "Same chain keys established");
-
-            }else {
-                Log.i("Chain Keys:", "Chain Keys for users not same");
-            }
+            ChainKey = HKDF.fromHmacSha256().expand(SharedSecretAB, "chainKey".getBytes(StandardCharsets.UTF_8), 32);
+            Log.i("Chain Key Generated:",Base64.getEncoder().encodeToString(ChainKey));
 
             //message Key
-            messageKey_alice = HKDF.fromHmacSha256().expand(chainKey_alice, "messageKey".getBytes(StandardCharsets.UTF_8), 16);
-            messageKey_bob = HKDF.fromHmacSha256().expand(chainKey_bob, "messageKey".getBytes(StandardCharsets.UTF_8), 16);
-
-
-
-            Log.i("Message Keys:",Base64.getEncoder().encodeToString(messageKey_alice) + "::bob-" + Base64.getEncoder().encodeToString(messageKey_bob));
-            Log.i("Message Keys:",Base64.getDecoder().decode(Base64.getEncoder().encodeToString(messageKey_alice))
-                    + "::bob-" + Base64.getDecoder().decode(Base64.getEncoder().encodeToString(messageKey_bob)));
-            if ( Arrays.equals(messageKey_alice, messageKey_bob) )
-            {
-                Log.i("Message Keys:", "Same Message keys established");
-
-            }else {
-                Log.i("Message Keys:", "Message Keys for users not same");
-            }
-
+            Messagekey = HKDF.fromHmacSha256().expand(ChainKey, "messageKey".getBytes(StandardCharsets.UTF_8), 32);
+            Log.i("Message Keys:",Base64.getEncoder().encodeToString(Messagekey));
         }
-        String chainKey_alice_str = Base64.getEncoder().encodeToString(chainKey_alice)  ;
-        String chainKey_bob_str = Base64.getEncoder().encodeToString(chainKey_bob);
-        String messageKey_alice_str = Base64.getEncoder().encodeToString(messageKey_alice) ;
-        String messageKey_bob_str = Base64.getEncoder().encodeToString(messageKey_bob);
 
 
-        SaveKeysSP(context, alice_public_key_str, alice_private_key_str, bob_public_key_str,
-        bob_private_key_str, shared_secret_str, chainKey_alice_str, chainKey_bob_str, messageKey_alice_str, messageKey_bob_str);
+        String ChainKey_str = Base64.getEncoder().encodeToString(ChainKey)  ;
+        String MessageKey_str = Base64.getEncoder().encodeToString(Messagekey) ;
+
 
     }
 
-    public static void SaveKeysSP(Context context, String publicKey1, String privatekey1, String publicKey2, String privateKey2,
-                                  String shared_secret, String chainKey1, String chainKey2, String messageKey1, String messageKey2){
+    private static byte[] generateShredSecretECDH(byte[] privateKey, byte[] publicKey) {
+        byte[] shared_secret = ECDHCurve25519.generate_shared_secret(privateKey, publicKey);
+        return shared_secret;
+    }
+
+
+//    public static void SaveKeysSP(Context context, String publicKey1, String privatekey1, String publicKey2, String privateKey2,
+//                                  String shared_secret, String chainKey1, String chainKey2, String messageKey1, String messageKey2){
+//        //1st method will be shared preferences
+//        SharedPreferences sharedPreferences =   context.getSharedPreferences("com.example.e2eeapp_alpha.Encryption",Context.MODE_PRIVATE);
+//
+//        //this commented code sets the primary keys for users along with shared secret; no need to uncomment
+//        //it only needs to execute once; already done that
+//        sharedPreferences.edit().putString("alice_public", publicKey1).apply();
+//        sharedPreferences.edit().putString("alice_private", privatekey1).apply();
+//
+//        sharedPreferences.edit().putString("bob_public", publicKey2).apply();
+//        sharedPreferences.edit().putString("bob_private", privateKey2).apply();
+//
+//        sharedPreferences.edit().putString("shared_secret", shared_secret).apply();
+//        //chain keys
+//        sharedPreferences.edit().putString("ck_alice", chainKey1).apply();
+//        sharedPreferences.edit().putString("ck_bob", chainKey2).apply();
+//        //message keys
+//        sharedPreferences.edit().putString("mk_alice", messageKey1).apply();
+//        sharedPreferences.edit().putString("mk_bob", messageKey2).apply();
+//
+////        to delete SP
+////        SharedPreferences settings = context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+////        settings.edit().clear().commit();
+//
+//        Log.i("GenerateKeys:", sharedPreferences.getString("alice_public", "aaa"));
+//        Log.i("GenerateKeys:", sharedPreferences.getString("alice_private", "aaa"));
+//
+//        Log.i("GenerateKeys:", sharedPreferences.getString("bob_public", "aaa"));
+//        Log.i("GenerateKeys:", sharedPreferences.getString("bob_private", "aaa"));
+//
+//        Log.i("GenerateKeys:", sharedPreferences.getString("shared_secret", "aa"));
+//
+//        Log.i("GenerateKeys:", sharedPreferences.getString("ck_alice", "aa"));
+//        Log.i("GenerateKeys:", sharedPreferences.getString("ck_bob", "aa"));
+//
+//        Log.i("GenerateKeys:", sharedPreferences.getString("mk_alice", "aa"));
+//        Log.i("GenerateKeys:", sharedPreferences.getString("mk_bob", "aa"));
+//
+////        I/GenerateKeys:: (32 and 16 bytes)
+////        ms711s+jk+qsSwFwTqkB2ud6ZQup4pTnnWHmv9dHd2s=
+////        kAiNnwAAAAABAAAApq59HwAAAAABAAAAAQAAABzD/HA=
+////
+////        CXlpZQl/hzxu9lRkplnbJhEC+R3LQjnqY+k5ohLQYWw=
+////        QIXfENDkvP8BAAAAAAAAAAAAAAABAAAAAQAAAFDlvH8=
+////
+////        S1saIeWSZv6JqiH6v+9hze0mwTKdzfAbD9/VtDOcrRQ=
+////
+////                0fSxP9NRh7138V+tPRJOBQ==
+////                0fSxP9NRh7138V+tPRJOBQ==
+////                Dqjp1g0y3lqT0nPrSrFrZQ==
+////                Dqjp1g0y3lqT0nPrSrFrZQ==
+//
+//
+//
+//    }
+
+//    public static void setkeysManually(Context context){
+//        SaveKeysSP(
+//                context,
+//                "ms711s+jk+qsSwFwTqkB2ud6ZQup4pTnnWHmv9dHd2s=",
+//                "kAiNnwAAAAABAAAApq59HwAAAAABAAAAAQAAABzD/HA=",
+//                "CXlpZQl/hzxu9lRkplnbJhEC+R3LQjnqY+k5ohLQYWw=",
+//                "QIXfENDkvP8BAAAAAAAAAAAAAAABAAAAAQAAAFDlvH8=",
+//                "S1saIeWSZv6JqiH6v+9hze0mwTKdzfAbD9/VtDOcrRQ=",
+//                "0fSxP9NRh7138V+tPRJOBQ==",
+//                "0fSxP9NRh7138V+tPRJOBQ==",
+//                "Dqjp1g0y3lqT0nPrSrFrZQ==",
+//                "Dqjp1g0y3lqT0nPrSrFrZQ=="
+//        );
+//    }
+
+    public static void setkeysManually(Context context){
+        SaveKeyONOSP(
+                context,
+                "T1xEE867TMSw0P1x1gUbEvYnRIq7MMhZg0W0LDh0fC0=",
+                "mIj3jgAAAAABAAAACFemqQAAAAABAAAAAQAAAByTy2Q=",
+                "jJw/MY/KRK2RAQ6jpK2XfHv55U6fimBGb48PuiHd4Cg=",
+                "iCRfqAAYqv8BAAAAAAAAAAAAAAABAAAAAQAAAIAYqn8=",
+                "lzaa11fPy/euV2vzN0r63WyKWxiHfJnOXk96IJ1FiFk=",
+                "HDP1t2Y4ecysyDCiI4myamKywcVxsmUFgDLm0TgQbw8=",
+                "vknR6bRGuxrKYAl8fpetbNd6WnISTdAIKPfyj2OtsWQ="
+        );
+    }
+
+    public static void SaveKeyONOSP(Context context, String publicKey1, String privatekey1, String publicKey2, String privateKey2,
+                                    String shared_secret, String chainKey, String messageKey ){
+
+        //Save the Keys to current Users Shred Preference
         //1st method will be shared preferences
-        SharedPreferences sharedPreferences =   context.getSharedPreferences("com.example.e2eeapp_alpha.Encryption",Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences =   context.getSharedPreferences("ono_chat_keys",Context.MODE_PRIVATE);
 
         //this commented code sets the primary keys for users along with shared secret; no need to uncomment
         //it only needs to execute once; already done that
@@ -175,63 +340,30 @@ public class GenerateKeys extends AppCompatActivity {
 
         sharedPreferences.edit().putString("shared_secret", shared_secret).apply();
         //chain keys
-        sharedPreferences.edit().putString("ck_alice", chainKey1).apply();
-        sharedPreferences.edit().putString("ck_bob", chainKey2).apply();
+        sharedPreferences.edit().putString("ck", chainKey).apply();
         //message keys
-        sharedPreferences.edit().putString("mk_alice", messageKey1).apply();
-        sharedPreferences.edit().putString("mk_bob", messageKey2).apply();
-
-//        to delete SP
-//        SharedPreferences settings = context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
-//        settings.edit().clear().commit();
-
-        Log.i("GenerateKeys:", sharedPreferences.getString("alice_public", "aaa"));
-        Log.i("GenerateKeys:", sharedPreferences.getString("alice_private", "aaa"));
-
-        Log.i("GenerateKeys:", sharedPreferences.getString("bob_public", "aaa"));
-        Log.i("GenerateKeys:", sharedPreferences.getString("bob_private", "aaa"));
-
-        Log.i("GenerateKeys:", sharedPreferences.getString("shared_secret", "aa"));
-
-        Log.i("GenerateKeys:", sharedPreferences.getString("ck_alice", "aa"));
-        Log.i("GenerateKeys:", sharedPreferences.getString("ck_bob", "aa"));
-
-        Log.i("GenerateKeys:", sharedPreferences.getString("mk_alice", "aa"));
-        Log.i("GenerateKeys:", sharedPreferences.getString("mk_bob", "aa"));
-
-//        I/GenerateKeys:: (32 and 16 bytes)
-//        ms711s+jk+qsSwFwTqkB2ud6ZQup4pTnnWHmv9dHd2s=
-//        kAiNnwAAAAABAAAApq59HwAAAAABAAAAAQAAABzD/HA=
-//
-//        CXlpZQl/hzxu9lRkplnbJhEC+R3LQjnqY+k5ohLQYWw=
-//        QIXfENDkvP8BAAAAAAAAAAAAAAABAAAAAQAAAFDlvH8=
-//
-//        S1saIeWSZv6JqiH6v+9hze0mwTKdzfAbD9/VtDOcrRQ=
-//
-//                0fSxP9NRh7138V+tPRJOBQ==
-//                0fSxP9NRh7138V+tPRJOBQ==
-//                Dqjp1g0y3lqT0nPrSrFrZQ==
-//                Dqjp1g0y3lqT0nPrSrFrZQ==
+        sharedPreferences.edit().putString("mk", messageKey).apply();
 
 
+        //Log keys from SP
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("alice_public", "aaa"));
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("alice_private", "aaa"));
 
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("bob_public", "aaa"));
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("bob_private", "aaa"));
+
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("shared_secret", "aa"));
+
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("ck", "aa"));
+
+        Log.i("GenerateKeys:", "ONO_CHAT_KEYS SP:" + sharedPreferences.getString("mk", "aa"));
     }
 
-    public static void setkeysManually(Context context){
-        SaveKeysSP(
-                context,
-                "ms711s+jk+qsSwFwTqkB2ud6ZQup4pTnnWHmv9dHd2s=",
-                "kAiNnwAAAAABAAAApq59HwAAAAABAAAAAQAAABzD/HA=",
-                "CXlpZQl/hzxu9lRkplnbJhEC+R3LQjnqY+k5ohLQYWw=",
-                "QIXfENDkvP8BAAAAAAAAAAAAAAABAAAAAQAAAFDlvH8=",
-                "S1saIeWSZv6JqiH6v+9hze0mwTKdzfAbD9/VtDOcrRQ=",
-                "0fSxP9NRh7138V+tPRJOBQ==",
-                "0fSxP9NRh7138V+tPRJOBQ==",
-                "Dqjp1g0y3lqT0nPrSrFrZQ==",
-                "Dqjp1g0y3lqT0nPrSrFrZQ=="
-        );
+    public static void deleteSP(Context context, String sp_name){
+        SharedPreferences sharedPreferences =   context.getSharedPreferences(sp_name,Context.MODE_PRIVATE);
+        sharedPreferences.edit().clear().commit();
+        Log.i("deleteSP", String.valueOf(sharedPreferences.getAll()));
     }
-
 
     public static void generateMsgPreference(Context context){
         //create message preference manually

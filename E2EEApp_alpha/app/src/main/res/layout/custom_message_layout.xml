@@ -5,35 +5,110 @@
     android:layout_height="wrap_content"
     >
 
-
-    <TextView
-        android:id="@+id/receiver_message_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
         android:background="@drawable/receiver_messages_layout"
-        android:text="Receiver Messages here"
-        android:padding="10dp"
-        android:textSize="14sp"
-        android:textColor="@color/black"
-        />
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:id="@+id/receiver_side"
+        android:padding="6dp"
+        >
+        <TextView
+            android:id="@+id/receiver_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="Receiver Messages here"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_gravity="start"
+            />
 
-    <TextView
-        android:id="@+id/sender_message_text"
+        <TextView
+            android:id="@+id/receiver_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="time"
+            android:textSize="13sp"
+            android:textColor="@color/darkgrey"
+            android:layout_gravity="right"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+<!--    <TextView-->
+<!--        android:id="@+id/receiver_message_text"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentTop="true"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:background="@drawable/receiver_messages_layout"-->
+<!--        android:text="Receiver Messages here"-->
+<!--        android:padding="10dp"-->
+<!--        android:textSize="14sp"-->
+<!--        android:textColor="@color/black"-->
+<!--        />-->
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="@id/receiver_message_text"
-        android:padding="10dp"
-        android:textSize="14sp"
-        android:text="Sender Messages here"
         android:background="@drawable/sender_messages_layout"
-        android:textColor="@color/black"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/sender_side"
+        android:layout_marginTop="5dp"
+        android:padding="6dp"
+        >
 
-        />
+        <TextView
+            android:id="@+id/sender_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="@id/receiver_message_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_gravity="start"
+            android:text="Sender Messages here"
+
+            />
+
+        <TextView
+            android:id="@+id/sender_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="time"
+            android:textSize="13sp"
+            android:textColor="@color/darkgrey"
+            android:layout_gravity="right"
+            android:textStyle="bold"
+
+            />
+    </LinearLayout>
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/sender_message_text"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentTop="@id/receiver_message_text"-->
+<!--        android:padding="10dp"-->
+<!--        android:textSize="14sp"-->
+<!--        android:text="Sender Messages here"-->
+<!--        android:background="@drawable/sender_messages_layout"-->
+<!--        android:textColor="@color/black"-->
+
+<!--        />-->
 
 
 </RelativeLayout>

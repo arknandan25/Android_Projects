@@ -69,8 +69,38 @@ package com.example.e2eeapp_alpha.Chats;
 //attampt 2 MVP
 
 public class MessageObject {
-    private String from, message, type , timestamp, ucid;
+    private String from;
+    private String to;
+    private String message;
+    private String type;
+    private String timestamp;
+    private String ucid;
+    private String time;
+    private String date;
 
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
     public String getFrom() {
         return from;
     }
@@ -111,12 +141,15 @@ public class MessageObject {
         this.type = type;
     }
 
-    public MessageObject(String from, String message, String type, String timestamp, String ucid) {
+    public MessageObject(String from, String message, String type, String timestamp, String ucid, String time, String date, String to) {
         this.from = from;
         this.message = message;
         this.type = type;
         this.timestamp = timestamp;
         this.ucid = ucid;
+        this.time = time;
+        this.date = date;
+        this.to = to;
     }
 
     public MessageObject(){}

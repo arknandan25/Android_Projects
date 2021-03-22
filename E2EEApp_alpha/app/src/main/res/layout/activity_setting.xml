@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingActivity">
+    tools:context=".SettingActivity"
+    android:background="@color/lightgrey">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_profile_image"
@@ -33,7 +34,9 @@
         android:drawableLeft="@drawable/ic_user_foreground"
         android:layout_below="@+id/user_profile_image"
         android:textAlignment="center"
-        android:layout_gravity="center_horizontal"></EditText>
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic"
+        android:textColor="@color/purple_700"></EditText>
 
     <EditText
         android:id="@+id/user_status"
@@ -51,7 +54,9 @@
         android:drawableLeft="@drawable/ic_user_foreground"
         android:layout_below="@+id/user_name"
         android:textAlignment="center"
-        android:layout_gravity="center_horizontal"></EditText>
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic"
+        android:textColor="@color/purple_700"></EditText>
 
 
     <Button

@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.installations.Utils;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -26,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +46,18 @@ import java.util.List;
 
 import javax.crypto.NoSuchPaddingException;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 public class ViewServerImages extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ImageAdapter adapter;
     private DatabaseReference databaseReference;
     private List<UploadImage> mUploads = new ArrayList<>();
-    private File yourAppDir;
+    private File DirAddress;
+    private File download_addr;
+    private File apkStorage;
+
     private String my_key = "2421074815010621";
     private String my_spec_key = "2421074815010631";
 
@@ -60,12 +67,42 @@ public class ViewServerImages extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_server_images);
         //setup local directory for encrypted and decrypted images
-        yourAppDir = new File(getExternalFilesDir(null).getAbsolutePath()+"_E2E_DOWN");
 
-        if(!yourAppDir.exists() && !yourAppDir.isDirectory())
+        apkStorage = new File(
+                Environment.getExternalStorageDirectory() + "/"
+                        + "arkthegreat");
+
+        if (!apkStorage.exists()) {
+            apkStorage.mkdir();
+            Log.e("TAG", "Directory Created.");
+        }
+
+        download_addr = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
+        Log.i("CreateDir","Download Dir::::::" + download_addr.toURI() + ":::String::" +download_addr.toString());
+        if(download_addr.exists() && download_addr.isDirectory()){
+            Log.w("CreateDir","Downloads folder exist");
+
+        }else {
+            Log.w("CreateDir","Downloads folder dosent exist");
+
+        }
+
+        File testImg =new File(download_addr, "images.jpeg");
+        if(testImg.exists()){
+            Log.w("CreateDir","Test Image exist");
+
+        }else {
+            Log.w("CreateDir","Test Image  dosent exist");
+
+        }
+
+
+            DirAddress = new File(getExternalFilesDir(null).getAbsolutePath()+"_E2E_DOWN");
+
+        if(!DirAddress.exists() && !DirAddress.isDirectory())
         {
             // create empty directory
-            if (yourAppDir.mkdirs())
+            if (DirAddress.mkdirs())
             {
                 Log.i("CreateDir","App dir created");
             }
@@ -85,7 +122,9 @@ public class ViewServerImages extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 //        mUploads = new ArrayList<>();
-        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads");
+//        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads");
+        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads_enc");
+
 
 //        databaseReference.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
 //            @SuppressLint("LongLogTag")
@@ -133,7 +172,7 @@ public class ViewServerImages extends AppCompatActivity {
                     mUploads.add(u);
                 }
                 Log.i("muploads:", String.valueOf(mUploads));
-//                downloadFile(mUploads);
+                downloadFile(mUploads);
                 adapter = new ImageAdapter(ViewServerImages.this, mUploads);
                 recyclerView.setAdapter(adapter);
 
@@ -153,7 +192,9 @@ public class ViewServerImages extends AppCompatActivity {
     //download file first decrypt it and then show the decrypted image on recycler view
     private void downloadFile( List<UploadImage> img_list){
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference("image_uploads");
+//        StorageReference storageRef = storage.getReference("image_uploads");
+        StorageReference storageRef = storage.getReference("image_uploads_enc");
+
 
 
 
@@ -174,10 +215,10 @@ public class ViewServerImages extends AppCompatActivity {
 //                extension = img_list.get(i).getName().substring(pos1, img_list.get(i).getName().length());
 //            }
 //            Log.i(">>", fname_without_extension + "::: " + extension);//24591-2-avengers::: .png
-//            Log.i(">>>", String.valueOf(yourAppDir));///storage/emulated/0/Android/data/com.example.e2eeapp_alpha/files_E2E_DOWNLOADED_IMAGES
+//            Log.i(">>>", String.valueOf(DirAddress));///storage/emulated/0/Android/data/com.example.e2eeapp_alpha/files_E2E_DOWNLOADED_IMAGES
 //
 //            //call the download method
-//            download(ViewServerImages.this, fname_without_extension, String.valueOf(yourAppDir), curr_img_url);
+//            download(ViewServerImages.this, fname_without_extension, String.valueOf(DirAddress), curr_img_url);
 //            try {
 //                Thread.sleep(5000);
 //            } catch (InterruptedException e) {
@@ -205,15 +246,20 @@ public class ViewServerImages extends AppCompatActivity {
             extension = img_list.get(0).getName().substring(pos1, img_list.get(0).getName().length());
         }
         Log.i(">>", fname_without_extension + "::: " + extension);//24591-2-avengers::: .png
-        Log.i(">>>", String.valueOf(yourAppDir));///storage/emulated/0/Android/data/com.example.e2eeapp_alpha/files_E2E_DOWNLOADED_IMAGES
+        Log.i(">>>", String.valueOf(DirAddress));///storage/emulated/0/Android/data/com.example.e2eeapp_alpha/files_E2E_DOWNLOADED_IMAGES
 
         //call the download method
-        download(ViewServerImages.this, fname_without_extension, String.valueOf(yourAppDir), curr_img_url);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        download(ViewServerImages.this, fname_without_extension, String.valueOf(DirAddress), curr_img_url);
+        Uri x = Uri.parse("content://com.android.providers.downloads.documents/document/downloads");
+        File k = new File(x.getPath());
+        Log.i("DECRYPTDOWN>>", k.toString());
+        download(ViewServerImages.this, fname_without_extension, x.toString() , curr_img_url);
+
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
         try {
@@ -221,17 +267,64 @@ public class ViewServerImages extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void decrypt_downloaded( String decrypted_file_name, String  encrypted_file_name) throws FileNotFoundException {
-        //decrypt image
+        // decrypt image
 //        String decrypted_file_name = unenc_fileName;
-        File output_dec_file = new File(yourAppDir, decrypted_file_name);
-        File encFile = new File(yourAppDir, encrypted_file_name);
+
+
+        File output_dec_file = new File(apkStorage, decrypted_file_name);
+        Log.i("DECRYPTDOWN","Decrypted filename:"+ output_dec_file.toString());
+//        Decrypted filename:/storage/emulated/0/Android/data/com.example.e2eeapp_alpha/files_E2E_DOWN/images.png
+        File pic_addr = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        File encFile = new File(apkStorage, encrypted_file_name);
+        Log.i("DECRYPTDOWN", "Encrypted file name:"+ encFile.toString());
+
+        if(encFile.exists()){
+            Log.i("DECRYPTDOWN", "Encrypted dir exists");
+
+        }else {
+            Log.i("DECRYPTDOWN", "Encrypted file does not exists");
+
+        }
+
+        //
+
+        if(apkStorage.exists()){
+            Log.i("DECRYPTDOWN", "apk dir exists");
+
+        }else {
+            Log.i("DECRYPTDOWN", "apk file does not exists");
+
+        }
+
+//        String l = apkStorage.toString();
+//        File directory = new File(l);
+//        File[] files = directory.listFiles();
+//        Log.d("Files", "Size: "+ files.length);
+//        for (int i = 0; i < files.length; i++)
+//        {
+//            Log.d("Files", "FileName:" + files[i].getName());
+//        }
+
+
+        //Uri
+        Uri x = Uri.parse("content://com.android.externalstorage.documents/document/primary%3AAndroid%2Fdata%2Fcom.example.e2eeapp_alpha%2Ffiles%2Fstorage%2Femulated%2F0%2FDownload%2Fimages");
+        File k = new File(x.getPath());
+        Log.i("DECRYPTDOWN", k.toString());
+
+        if(k.exists()){
+            Log.i("DECRYPTDOWN", "Encrypted file!! exists");
+
+        }else {
+            Log.i("DECRYPTDOWN", "Encrypted file!! does not exists");
+        }
+
         try {
             ImageEncrypter.decryptToFile(my_key, my_spec_key, new FileInputStream(encFile), new FileOutputStream(output_dec_file));
+            Log.i("DECRYPTDOWN", "File decrypted!!");
             Toast.makeText(ViewServerImages.this, "Image decrypted", Toast.LENGTH_SHORT).show();
 
         } catch (IOException e) {
@@ -253,9 +346,10 @@ public class ViewServerImages extends AppCompatActivity {
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalFilesDir(context, dest, filename);
+
+        request.setDestinationInExternalFilesDir(context,  DIRECTORY_DOWNLOADS, filename);
+
         downloadManager.enqueue(request);
-
-
     }
+
 }

@@ -33,6 +33,7 @@ import com.example.e2eeapp_alpha.ChatActivity;
 import com.example.e2eeapp_alpha.Chats.MessageAdapter;
 import com.example.e2eeapp_alpha.Chats.MessageObject;
 import com.example.e2eeapp_alpha.Encryption.EncryptionObject;
+import com.example.e2eeapp_alpha.Encryption.TextEncryptor;
 import com.example.e2eeapp_alpha.Fragments;
 import com.example.e2eeapp_alpha.GroupChatEncryption.GCTextEncryptor;
 import com.example.e2eeapp_alpha.GroupChatEncryption.GroupKeys;
@@ -54,6 +55,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -228,7 +230,7 @@ public class GroupChatActivity extends AppCompatActivity {
         super.onStart();
         context = this;
 
-        //
+        //set the status of the current user admin or group member
         SharedPreferences users_profile
                 =   context.getSharedPreferences("dynamicUser", Context.MODE_PRIVATE);
         if (users_profile.getString("status", null) != null && users_profile.getString("status", null).equals("admin")){
@@ -238,14 +240,37 @@ public class GroupChatActivity extends AppCompatActivity {
 
         }
 
-        //
+        //check for new messages sent by any user
         groupReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//                if (snapshot.exists()){
-//                    DisplayGroupMessages(snapshot);
-//                }
+
                 GroupObject groupObject  =snapshot.getValue(GroupObject.class);
+
+                Log.i("OCA", "--------------New Group Child addded -------------");
+                Log.i("OCA", groupObject.getMessage());
+                Log.i("OCA", groupObject.getSenderName());
+                Log.i("OCA", groupObject.getSenderUid());
+                Log.i("OCA", groupObject.getTime());
+                Log.i("OCA", "--------------New Group Child added Ended -------------");
+
+                //check if the 'from' id is not the current current user then ratchet chain key
+                mAuth = FirebaseAuth.getInstance();
+                if (!(mAuth.getCurrentUser().getUid().equals(groupObject.getSenderUid()))){
+                    Log.i("StateRatchet", "-----------Ratchet Mechanism activated for this user as they are the recipient of a message!!-----------");
+                    Log.i("StateRatchet", "Current Uid != sender msg for current message");
+                    SharedPreferences users_profile =  context.getSharedPreferences("dynamicUser", Context.MODE_PRIVATE);
+                    String curr_gk =  users_profile.getString("gk", "GrpKEY");
+                    byte[] curr_gk_byte = new byte[0];
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        curr_gk_byte = Base64.getDecoder().decode(curr_gk);
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        GCTextEncryptor.ratchetKey(context, curr_gk_byte);
+                    }
+
+                }
+
                 grpMessageList.add(groupObject);
                 mChatAdapter.notifyDataSetChanged();
 
@@ -276,7 +301,7 @@ public class GroupChatActivity extends AppCompatActivity {
             }
         });
 
-        //
+        //constantly check if a user left the group
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("GroupKeys").child(currentGroupName).addChildEventListener(new ChildEventListener() {
             @Override
@@ -340,7 +365,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
 
 
-        //get curretn user name
+        //get current user name
         Task<DataSnapshot> q = FirebaseDatabase.getInstance().getReference()
                 .child("User_Data_Temp")
                 .child(currentUserId)
@@ -351,7 +376,11 @@ public class GroupChatActivity extends AppCompatActivity {
 
                         Log.i("INITIALZE",  task.getResult().child("name").getValue().toString());
                         Log.i("INITIALZE", String.valueOf(task.getResult()));
-                        getSupportActionBar().setTitle(currentGroupName + " - " + task.getResult().child("name").getValue().toString() + "(" + status + ")");
+                        String name = task.getResult().child("name").getValue().toString();
+                        String fname = name.substring(0, name.indexOf(" "));
+                        Log.i("INITIALZE", "first name:" + fname);
+
+                        getSupportActionBar().setTitle(currentGroupName + " - " + fname  + "(" + status + ")");
 
 
                     }
@@ -371,11 +400,6 @@ public class GroupChatActivity extends AppCompatActivity {
         gChatRV.setLayoutManager(mChatLayoutManager);
         mChatAdapter = new GroupChatAdapter(this, grpMessageList);
         gChatRV.setAdapter(mChatAdapter);
-
-//        scrollView = (ScrollView) findViewById(R.id.gchat_scrollView);
-//        displayGroupMessages = (TextView) findViewById(R.id.gchat_msg_display);
-
-
 
     }
 

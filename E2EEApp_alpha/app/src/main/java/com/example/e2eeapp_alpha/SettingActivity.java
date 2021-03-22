@@ -12,8 +12,12 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -34,8 +38,11 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         //Initialize
         Initialize();
+        RetriveUserCurrentInfo();
 
         UpdateDetails.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,11 +52,37 @@ public class SettingActivity extends AppCompatActivity {
         });
     }
 
+    private void RetriveUserCurrentInfo() {
+        databaseReference.child(currentUserId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists() && snapshot.hasChild("name") ){
+                            String curr_uname = snapshot.child("name").getValue().toString();
+                            UserName.setText(curr_uname);
+                        }
+                        if(snapshot.exists() && snapshot.hasChild("status")){
+                            String curr_status = snapshot.child("status").getValue().toString();
+                            UserStatus.setText(curr_status);
+                        }
+                        if(snapshot.exists() && snapshot.hasChild("image")){
+                            String curr_uimage = snapshot.child("image").getValue().toString();
+                            Picasso.get().load(curr_uimage).placeholder(R.drawable.profile_image).into(ProfilePicture);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
     private void updateDetails() {
         String Name_to_Set = UserName.getText().toString();
         String Status_to_Set = UserStatus.getText().toString();
         final Integer[] flagName = new Integer[1];
-        final Integer[] flagStatus = {0};
+        final Integer[] flagStatus = new Integer[1];
         HashMap<String, String> profileMap = new HashMap<>();
         profileMap.put("name", Name_to_Set);
         profileMap.put("status", Status_to_Set);
@@ -73,6 +106,8 @@ public class SettingActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             flagName[0] = 1;
+                            Toast.makeText(SettingActivity.this, "Profile Updated!", Toast.LENGTH_LONG).show();
+
                         }
                     }
                 });
@@ -82,17 +117,19 @@ public class SettingActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             flagStatus[0] = 1;
+                            Toast.makeText(SettingActivity.this, "Profile Updated!", Toast.LENGTH_LONG).show();
+
                         }
                     }
                 });
-
-        if(flagName[0] == 1 && flagStatus[0] == 1){
-            Toast.makeText(SettingActivity.this, "Profile Updated!", Toast.LENGTH_LONG).show();
-
-        }else{
-            Toast.makeText(SettingActivity.this, "Unable to Update Profile!", Toast.LENGTH_LONG).show();
-
-        }
+//
+//        if(flagName[0] == 1 && flagStatus[0] == 1){
+//            Toast.makeText(SettingActivity.this, "Profile Updated!", Toast.LENGTH_LONG).show();
+//
+//        }else{
+//            Toast.makeText(SettingActivity.this, "Unable to Update Profile!", Toast.LENGTH_LONG).show();
+//
+//        }
 
     }
 

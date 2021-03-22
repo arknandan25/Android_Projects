@@ -1,6 +1,10 @@
 package com.example.e2eeapp_alpha;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,6 +28,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.e2eeapp_alpha.Chats.ChatObject;
 import com.example.e2eeapp_alpha.Chats.MessageAdapter;
 import com.example.e2eeapp_alpha.Chats.MessageObject;
+import com.example.e2eeapp_alpha.Database.DBEncrypter;
+import com.example.e2eeapp_alpha.Database.DatabaseHelper;
 import com.example.e2eeapp_alpha.Encryption.EncryptionObject;
 import com.example.e2eeapp_alpha.Encryption.TextEncryptor;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,8 +47,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +77,11 @@ public class ChatActivity  extends AppCompatActivity {
 
     private Toolbar chatToolBar;
     private DatabaseReference RootRef;
+    private FirebaseAuth mAuth;
+    private Context context = this;
+
+    private SQLiteOpenHelper openHelper;
+    private SQLiteDatabase db;
 
 
     ArrayList<MessageObject> messageList;
@@ -233,10 +247,54 @@ public class ChatActivity  extends AppCompatActivity {
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                        String curr_message_key = snapshot.getKey();
                         MessageObject messageObject = snapshot.getValue(MessageObject.class);
+                        Log.i("OCA", "--------------Child addded -------------");
+                        Log.i("OCA", messageObject.getMessage());
+                        Log.i("OCA", messageObject.getFrom());
+                        Log.i("OCA", messageObject.getTimestamp());
+                        Log.i("OCA", messageObject.getType());
+                        Log.i("OCA", "--------------Child added Ended -------------");
+
+                        //decrypt message
                         messageList.add(messageObject);
                         mChatAdapter.notifyDataSetChanged();
 
+                        //check if the 'from' id is not the current current user then ratchet chain key
+                        mAuth = FirebaseAuth.getInstance();
+                        if (!(mAuth.getCurrentUser().getUid().equals(messageObject.getFrom()))){
+                            Log.i("StateRatchet", "Current Uid != sender msg for current message");
+                            SharedPreferences sharedPreferences =   context.getSharedPreferences("ono_chat_keys",Context.MODE_PRIVATE);
+                            String ck =  sharedPreferences.getString("ck", "CHAINKEY ONOsp");
+                            byte[] ck_byte = new byte[0];
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                 ck_byte = Base64.getDecoder().decode(ck);
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                TextEncryptor.ratchetKey(context, ck_byte);
+                            }
+
+                        }
+
+
+                        //add plaintext message->encrypt using password based encryption to SQLITE DB
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            try {
+                                addDataToDB(messageObject, curr_message_key);
+                            } catch (NoSuchPaddingException e) {
+                                e.printStackTrace();
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            } catch (IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            } catch (BadPaddingException e) {
+                                e.printStackTrace();
+                            } catch (NoSuchAlgorithmException e) {
+                                e.printStackTrace();
+                            } catch (InvalidKeyException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
 
                     @Override
@@ -259,6 +317,69 @@ public class ChatActivity  extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void addDataToDB(MessageObject messageObject, String curr_message_key) throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        db = openHelper.getWritableDatabase();
+
+        //decrypt the ciphertext first re-encrypt it then to local DB
+        String decrypted_message = getDecryptedMessage(messageObject.getMessage(), messageObject.getUcid());
+        String password = "123456";
+        Log.i("DB-ENCRYPT", DBEncrypter.Encrypt(decrypted_message, password));
+        Log.i("DB-DECRYPT", DBEncrypter.Decrypt(DBEncrypter.Encrypt(decrypted_message, password), password));
+
+//        //insert data from the messageObject to the Local SQLite database
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DatabaseHelper.col2, curr_message_key);
+        contentValues.put(DatabaseHelper.col3, DBEncrypter.Encrypt(decrypted_message, password));
+        contentValues.put(DatabaseHelper.col4, messageObject.getTime());
+        contentValues.put(DatabaseHelper.col5, messageObject.getFrom());
+        contentValues.put(DatabaseHelper.col6, messageObject.getTo());
+        long id = db.insert(DatabaseHelper.TABLE_NAME, null, contentValues);
+        if (id > 0){
+            Toast.makeText(this, "Encrypted Message added to Local Database", Toast.LENGTH_LONG).show();
+            Log.i("LOCAL-DB", "Message added to database");
+
+        }else{
+            Toast.makeText(this, "Unable to add Encrypted Message to Local Database", Toast.LENGTH_LONG).show();
+            Log.i("LOCAL-DB", "Unable to add Message to database");
+
+
+        }
+    }
+
+    public  String getDecryptedMessage(String message, String decKey){
+        //set the decrypted text here
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                try {
+                    byte[] x = new byte[0];
+                    byte[] y = new byte[0];
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        x = Base64.getDecoder().decode(message);
+                        y = Base64.getDecoder().decode(decKey);
+                        Log.i("ChatActivity:Message", message);
+                    }
+                    return  TextEncryptor.DecryptAES(x, context, y);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "";
     }
 
 
@@ -298,6 +419,18 @@ public class ChatActivity  extends AppCompatActivity {
         Log.i("receiverID;sendMessage:", receiverId);
         Log.i("sessionId;sendMessage:", "" + sessionId);
 
+         String currentDate, currentTime;
+
+        //current date
+        Calendar calendar_date = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");
+        currentDate = simpleDateFormat.format(calendar_date.getTime());
+
+        //current time
+        Calendar calendar_time = Calendar.getInstance();
+        SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("hh:mm:ss a");
+        currentTime = simpleTimeFormat.format(calendar_time.getTime());
+
         if (!msg_write.getText().toString().isEmpty()) {
             //user has typed something
             String msgSenderRef = "UserChatsTemp/" + senderId + "/" + receiverId;
@@ -323,8 +456,10 @@ public class ChatActivity  extends AppCompatActivity {
                     EncryptionObject x = TextEncryptor.EncryptAES(this, msg_write.getText().toString());
                     newMessageMap.put("message", x.getCiphertext());
                     newMessageMap.put("ucid", x.getEkey());
-                    Log.i("ciphertext;sendMessage:", x.getCiphertext());
-                    Log.i("msgKey;sendMessage:", "" + x.getEkey());
+
+                    Log.i("sendMessage>Ciphertext", x.getCiphertext());
+                    Log.i("sendMessage>CHAINKey", "" + x.getChainKey());
+                    Log.i("sendMessage>MSGKey", "" + x.getEkey());
 
 //                    newMessageMap.put("message", TextEncryptor.EncryptAES(this, msg_write.getText().toString()));
                 } catch (NoSuchAlgorithmException e) {
@@ -348,7 +483,14 @@ public class ChatActivity  extends AppCompatActivity {
 
             newMessageMap.put("from", senderId);
 
+            newMessageMap.put("to", receiverId);
+
             newMessageMap.put("timestamp", String.valueOf(date.getTime()));
+
+            newMessageMap.put("time", currentTime);
+
+            newMessageMap.put("date", currentDate);
+
 
 
             Map newMessageMapDetails = new HashMap();
@@ -451,6 +593,7 @@ public class ChatActivity  extends AppCompatActivity {
         mChatRV.setLayoutManager(mChatLayoutManager);
         mChatAdapter = new MessageAdapter(this, messageList);
         mChatRV.setAdapter(mChatAdapter);
+        openHelper = new DatabaseHelper(this);
 
     }
 }

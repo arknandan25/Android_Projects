@@ -61,6 +61,7 @@ public class MainActivity2 extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.imageView);
         //Init path
         File yourAppDir = new File(getExternalFilesDir(null).getAbsolutePath()+"yourAppDir");
+        Log.i("CreateDir","App dir:" + yourAppDir);
 
         if(!yourAppDir.exists() && !yourAppDir.isDirectory())
         {
@@ -143,7 +144,10 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 File output_dec_file = new File(yourAppDir, FILE_NAME_DEC);
+                Log.i("DECRYPT", "Name of the o/p decrypted file:" + output_dec_file.toString());
                 File encFile = new File(yourAppDir, FILE_ENC_NAME);
+                Log.i("DECRYPT", "Name of the i/p encrypted file:" + encFile.toString());
+
                 try {
                     ImageEncrypter.decryptToFile(my_key, my_spec_key, new FileInputStream(encFile), new FileOutputStream(output_dec_file));
 

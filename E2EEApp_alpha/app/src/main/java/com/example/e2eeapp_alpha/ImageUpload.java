@@ -74,8 +74,12 @@ public class ImageUpload extends AppCompatActivity {
         mImageView = findViewById(R.id.image_view);
 
 
-        storageReference = FirebaseStorage.getInstance().getReference("image_uploads");
-        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads");
+//        storageReference = FirebaseStorage.getInstance().getReference("image_uploads");
+        storageReference = FirebaseStorage.getInstance().getReference("image_uploads_enc");
+
+//        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads");
+        databaseReference = FirebaseDatabase.getInstance().getReference("image_uploads_enc");
+
 
         //setup local directoy for encrypted and decrypted images
         yourAppDir = new File(getExternalFilesDir(null).getAbsolutePath()+"_E2E_IMAGES");
@@ -110,7 +114,7 @@ public class ImageUpload extends AppCompatActivity {
         mShowImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ImageUpload.this, ViewServerImages.class);
+                Intent intent = new Intent(ImageUpload.this, MainActivity3.class);
                 ImageUpload.this.startActivity(intent);
             }
         });
@@ -260,83 +264,35 @@ public class ImageUpload extends AppCompatActivity {
     }
 
 //    THIS uploadfile sends unencrypted images successfully ot the firebase storage and database
-    private void uploadFile(){
-        //remember all files need to have a unique name; else it start to overwrite
-        if (mImageUri != null) {
-            StorageReference fileRef = storageReference.child(
-                    System.currentTimeMillis()+ "." + getFileExt(mImageUri));
-
-            fileRef.putFile(mImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if (!task.isSuccessful()){
-                        throw task.getException();
-                    }
-                    return fileRef.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if(task.isSuccessful()){
-                        Uri downloadUri = task.getResult();
-                        Log.i("Upload Image URI:", downloadUri.toString());
-                        Toast.makeText(ImageUpload.this, "File upload successful!",Toast.LENGTH_SHORT).show();
-                        String fileName = queryName(getContentResolver(), mImageUri).trim();
-                        UploadImage uploadImage = new UploadImage(fileName,downloadUri.toString());
-//                        String uploadId = databaseReference.push().getKey();
-//                        Log.i("UploadID:", uploadId);
-                        databaseReference.push().setValue(uploadImage);
-
-                    }else{
-                        Toast.makeText(ImageUpload.this, "File upload failed!"+task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-
-        }else{
-            Toast.makeText(ImageUpload.this, "No file selected!", Toast.LENGTH_SHORT).show();
-
-        }
-    }
-
-
-    //This upload File uploads the encrypted version of the images and cretes it metadata entry in the realtimeDB
 //    private void uploadFile(){
 //        //remember all files need to have a unique name; else it start to overwrite
 //        if (mImageUri != null) {
-//            String encrypted_file_Addr;
-//            String fileName = queryName(getContentResolver(), mImageUri).trim();
-//            encrypted_file_Addr = EncryptUploads(mImageUri, fileName);
-//            Log.i("Image URI Sttring", String.valueOf(mImageUri));
-//
 //            StorageReference fileRef = storageReference.child(
-//                    String.valueOf(System.currentTimeMillis()));
+//                    System.currentTimeMillis()+ "." + getFileExt(mImageUri));
 //
-//            //upload
-//            Uri file = Uri.fromFile(new File(encrypted_file_Addr));
-//
-//            Task<Uri> urlTask = fileRef.putFile(file).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+//            fileRef.putFile(mImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
 //                @Override
 //                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-//                    if (!task.isSuccessful()) {
+//                    if (!task.isSuccessful()){
 //                        throw task.getException();
 //                    }
-//
-//                    // Continue with the task to get the download URL
 //                    return fileRef.getDownloadUrl();
 //                }
 //            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
 //                @Override
 //                public void onComplete(@NonNull Task<Uri> task) {
-//                    if (task.isSuccessful()) {
+//                    if(task.isSuccessful()){
 //                        Uri downloadUri = task.getResult();
-//                        Toast.makeText(ImageUpload.this, "Encrypted File upload successful!",Toast.LENGTH_SHORT).show();
+//                        Log.i("Upload Image URI:", downloadUri.toString());
+//                        Toast.makeText(ImageUpload.this, "File upload successful!",Toast.LENGTH_SHORT).show();
+//                        String fileName = queryName(getContentResolver(), mImageUri).trim();
 //                        UploadImage uploadImage = new UploadImage(fileName,downloadUri.toString());
+////                        String uploadId = databaseReference.push().getKey();
+////                        Log.i("UploadID:", uploadId);
 //                        databaseReference.push().setValue(uploadImage);
-//                    } else {
-//                        // Handle failures
-//                        Toast.makeText(ImageUpload.this, "EncryptedFile upload failed!",Toast.LENGTH_SHORT).show();
 //
+//                    }else{
+//                        Toast.makeText(ImageUpload.this, "File upload failed!"+task.getException().getMessage(),Toast.LENGTH_SHORT).show();
 //                    }
 //                }
 //            });
@@ -346,4 +302,52 @@ public class ImageUpload extends AppCompatActivity {
 //
 //        }
 //    }
+
+
+    //This upload File uploads the encrypted version of the images and creates it metadata entry in the realtimeDB
+    private void uploadFile(){
+        //remember all files need to have a unique name; else it start to overwrite
+        if (mImageUri != null) {
+            String encrypted_file_Addr;
+            String fileName = queryName(getContentResolver(), mImageUri).trim();
+            encrypted_file_Addr = EncryptUploads(mImageUri, fileName);
+            Log.i("Image URI Sttring", String.valueOf(mImageUri));
+
+            StorageReference fileRef = storageReference.child(
+                    String.valueOf(System.currentTimeMillis()));
+
+            //upload
+            Uri file = Uri.fromFile(new File(encrypted_file_Addr));
+
+            Task<Uri> urlTask = fileRef.putFile(file).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    // Continue with the task to get the download URL
+                    return fileRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        Toast.makeText(ImageUpload.this, "Encrypted File upload successful!",Toast.LENGTH_SHORT).show();
+                        UploadImage uploadImage = new UploadImage(fileName,downloadUri.toString());
+                        databaseReference.push().setValue(uploadImage);
+                    } else {
+                        // Handle failures
+                        Toast.makeText(ImageUpload.this, "EncryptedFile upload failed!",Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+
+        }else{
+            Toast.makeText(ImageUpload.this, "No file selected!", Toast.LENGTH_SHORT).show();
+
+        }
+    }
 }

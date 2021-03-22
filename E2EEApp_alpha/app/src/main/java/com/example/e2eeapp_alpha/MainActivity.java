@@ -88,13 +88,13 @@ public class MainActivity extends AppCompatActivity {
 
         //test calls
 
-        DynamicUsers.CreateUserProfiles(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            GenerateKeys.setkeysManually(this); //this call generated keys for 2 users to demonstrate; lets roll from here
-            GenerateKeys.generateMsgPreference(this);
-
-        }
+//        DynamicUsers.CreateUserProfiles(this);
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            GenerateKeys.setkeysManually(this); //this call generated keys for 2 users to demonstrate; lets roll from here
+//            GenerateKeys.generateMsgPreference(this);
+//
+//        }
 
 
 //        TextEncryptor.getMessageKey(this);
@@ -122,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 //        TextEncryptor.testFunction(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            GenerateKeys.deleteSP(this, "ono_chat_keys");
+
+            GenerateKeys.setkeysManually(this);
+        }
 
         //test calls end here -----
 

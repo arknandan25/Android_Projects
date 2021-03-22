@@ -408,9 +408,6 @@ public class GCTextEncryptor {
 
         }
 
-        //before returning the decrypted text, ratchet the key forward : FORWARD SECRECY
-        //ratchetKey(context, mk);
-
         return decryptedText;
 
     }
